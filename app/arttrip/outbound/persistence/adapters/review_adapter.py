@@ -5,7 +5,6 @@ from sqlalchemy import exists, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from arttrip.application.domain.review.exceptions import ReviewError
 from arttrip.application.domain.review.review import Review
 from arttrip.application.domain.review.review_status import ReviewStatus
 from arttrip.application.port.output.review_port import (
@@ -13,6 +12,7 @@ from arttrip.application.port.output.review_port import (
     ReviewPort,
     WrittenReview,
 )
+from arttrip.outbound.persistence.integrity import translate_integrity_errors
 from arttrip.outbound.persistence.models import exhibit_table, review_table, users_table
 
 ONE_REVIEW_PER_EXHIBIT: Final = "uq_review_user_id_exhibit_id"
@@ -24,12 +24,8 @@ class ReviewAdapter(ReviewPort):
 
     def add(self, review: Review) -> None:
         self._session.add(review)
-        try:
+        with translate_integrity_errors():
             self._session.flush()
-        except IntegrityError as error:
-            if _violates(error, ONE_REVIEW_PER_EXHIBIT):
-                raise ReviewError.already_written() from error
-            raise
 
     def find_by_id(self, review_id: int) -> Review | None:
         return self._session.get(Review, review_id)

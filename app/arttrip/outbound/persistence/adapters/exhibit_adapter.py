@@ -13,10 +13,8 @@ from sqlalchemy import (
     tuple_,
     update,
 )
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from arttrip.application.domain.exhibit.exceptions import ExhibitError
 from arttrip.application.domain.exhibit.exhibit import Exhibit
 from arttrip.application.domain.exhibit.exhibit_filter import ExhibitFilter
 from arttrip.application.domain.exhibit.exhibit_hall import (
@@ -40,7 +38,9 @@ from arttrip.outbound.persistence.exhibit_conditions import (
     build_not_finished_condition,
     has_keyword,
 )
-from arttrip.outbound.persistence.integrity import violates_unique
+from arttrip.outbound.persistence.integrity import (
+    translate_integrity_errors,
+)
 from arttrip.outbound.persistence.models import (
     curation_exhibit_table,
     exhibit_hall_table,
@@ -60,8 +60,6 @@ _SORT_COLUMNS: Final[dict[ExhibitSortField, ColumnElement[Any]]] = {
     ExhibitSortField.END_DATE: exhibit_table.c.end_date,
     ExhibitSortField.TITLE: exhibit_table.c.title,
 }
-
-ONE_EXHIBIT_PER_HALL_TITLE_START: Final = "uq_exhibit_exhibit_hall_id_title_start_date"
 
 
 class ExhibitAdapter(ExhibitPort):
@@ -213,12 +211,8 @@ class ExhibitAdapter(ExhibitPort):
 
     def add(self, exhibit: Exhibit) -> None:
         self._session.add(exhibit)
-        try:
+        with translate_integrity_errors():
             self._session.flush()
-        except IntegrityError as error:
-            if violates_unique(error, ONE_EXHIBIT_PER_HALL_TITLE_START):
-                raise ExhibitError.duplicate() from error
-            raise
 
     def find_hall_by_name(self, name: str) -> ExhibitHall | None:
         statement = (
@@ -240,7 +234,8 @@ class ExhibitAdapter(ExhibitPort):
 
     def add_all(self, exhibits: Sequence[Exhibit]) -> None:
         self._session.add_all(exhibits)
-        self._session.flush()
+        with translate_integrity_errors():
+            self._session.flush()
 
     def exists_same(self, *, hall_id: int, title: str, start_date: date | None) -> bool:
         same_start = (

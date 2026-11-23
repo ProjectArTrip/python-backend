@@ -30,6 +30,7 @@ from arttrip.outbound.persistence.adapters.search_history_adapter import (
     SearchHistoryAdapter,
 )
 from arttrip.outbound.persistence.adapters.user_adapter import UserAdapter
+from arttrip.outbound.persistence.integrity import translate_integrity_errors
 
 
 class SqlAlchemyUnitOfWork(UnitOfWork):
@@ -62,7 +63,8 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
     ) -> None:
         try:
             if exc_type is None:
-                self._session.commit()
+                with translate_integrity_errors():
+                    self._session.commit()
             else:
                 self._session.rollback()
         finally:
