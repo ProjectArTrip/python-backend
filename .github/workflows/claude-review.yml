@@ -1,0 +1,64 @@
+name: Claude Code Review
+on:
+  pull_request:
+    types: [ opened, synchronize, ready_for_review, reopened ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 1
+
+      - uses: anthropics/claude-code-action@acfe7992852970efb4fee683d63d628e3e52df67
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          track_progress: true
+          allow_fork_prs: false
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            한국어로 리뷰한다. CLAUDE.md 의 아키텍처, 보안, 테스트, 작업 규칙이 기준이다.
+            가운뎃점 문자는 쓰지 않는다. 코드를 수정하거나 커밋하지 않는다.
+            alembic/versions 와 poetry.lock 은 리뷰하지 않는다.
+
+            1단계 찾기: gh pr diff 로 변경을 보고, 체크아웃된 주변 코드(호출자, 포트, 테스트)까지 읽는다.
+            다음을 본다.
+            - 기능: 의도한 동작을 하는가, 버그나 빠진 예외 경로가 있는가
+            - 7항목: 네이밍, 아키텍처(계층과 의존 방향), 유지보수 비용, 안티패턴,
+              디자인 패턴 적합성, 하드코딩, 확장성(변화 증거 없는 추상화는 감점)
+            - 정합성: 트랜잭션(with uow) 경계, 외부 발송이 커밋 전에 일어나는지, 동시 요청
+            - 보안: OWASP Top 10:2025. 인증, 인가, 소유권, 입력 상한, 정보 노출
+            - 테스트: 최악 조건과 공격 엣지 케이스만 있는가. 정상 흐름이나 DB 를 띄우는 테스트는 지적한다
+            - 주석: 무엇이 아니라 왜를 설명하는가
+
+            2단계 검증: 후보마다 실제 코드와 대조한다. 근거(파일:줄 또는 공식 문서)를 댈 수 없는 후보는 버린다.
+            이 PR 에 이미 달린 지적과 같은 내용은 다시 달지 않는다.
+
+            3단계 게시:
+            - 지적은 mcp__github_inline_comment__create_inline_comment (confirmed: true) 로 남긴다.
+              첫 줄에 [심각도][7항목 중 해당 항목]을 쓴다. 심각도는 Critical, Major, Minor, Trivial 중 하나다.
+            - 고칠 코드가 분명하면 ```suggestion 블록을 쓴다. 이 블록은 지정한 줄 범위 전체를 대체하므로
+              범위 안의 모든 줄을 빠짐없이 적는다.
+            - print 문은 Minor 로 한 번만 알린다. 토큰, 비밀번호, 개인정보가 원문으로 찍히면 Critical 이다.
+            - 마지막에 gh pr comment 로 요약을 하나 남긴다. 형식:
+              ## 변경 요약 (파일별 한 줄)
+              ## 지적 (심각도 순, 개수)
+              ## 잘된 점
+              ## 확인하지 못한 것
+
+          claude_args: |
+            --max-turns 30
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"

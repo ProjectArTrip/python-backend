@@ -1,0 +1,16 @@
+services:
+  app:
+    container_name: arttrip-backend-staging
+    build:
+      target: production-stage
+    restart: unless-stopped
+    ports: !override
+      - "127.0.0.1:${HTTP_PORT:-8000}:8000"
+    volumes: !override
+      - ./secrets:/secrets:ro
+    depends_on: !reset []
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      DB_HOST: host.docker.internal
+      LOG_LEVEL: INFO
