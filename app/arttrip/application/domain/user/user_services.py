@@ -158,7 +158,7 @@ class CompleteOnboardingKeywordsService(CompleteOnboardingKeywordsUseCase):
         self, command: CompleteOnboardingKeywordsCommand
     ) -> ReplaceKeywordsResult:
         with self._uow as uow:
-            user = load_current_user(uow.users, command.user_id)
+            user = load_current_user(uow.users, command.user_id, for_update=True)
             keywords = _find_requested_keywords(uow, command.keyword_ids)
             user.complete_keyword_step(keywords=keywords, now=datetime.now(UTC))
             saved_ids = tuple(sorted(k.keyword_id for k in user.keywords))
