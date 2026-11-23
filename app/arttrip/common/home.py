@@ -1,0 +1,14 @@
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class HomeSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env", env_prefix="HOME_", extra="ignore"
+    )
+
+    today_size: int = Field(default=3, ge=1, le=20)
+    schedule_size: int = Field(default=2, ge=1, le=20)
+    personalized_size: int = Field(default=3, ge=1, le=20)
+    genre_size: int = Field(default=3, ge=1, le=20)
+    curation_size: int = Field(default=3, ge=1, le=20)
