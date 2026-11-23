@@ -47,6 +47,9 @@ class UserAdapter(UserPort):
     def find_by_id(self, user_id: int) -> User | None:
         return self._session.get(User, user_id)
 
+    def find_by_id_for_update(self, user_id: int) -> User | None:
+        return self._session.get(User, user_id, with_for_update=True)
+
     def is_nickname_taken(self, *, nickname: str, except_user_id: int) -> bool:
         statement = (
             select(users_table.c.id)

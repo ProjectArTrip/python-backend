@@ -31,3 +31,7 @@ class UserPort(ABC):
     @abstractmethod
     def remove_with_owned_data(self, user_id: int) -> None:
         pass
+
+    @abstractmethod
+    def find_by_id_for_update(self, user_id: int) -> User | None:
+        pass
