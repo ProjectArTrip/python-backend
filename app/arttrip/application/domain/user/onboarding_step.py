@@ -1,0 +1,9 @@
+from enum import StrEnum
+
+
+class OnboardingStep(StrEnum):
+    ROLE_SELECTION = "ROLE_SELECTION"
+    ARTIST_VERIFICATION = "ARTIST_VERIFICATION"
+    NICKNAME = "NICKNAME"
+    KEYWORD = "KEYWORD"
+    COMPLETED = "COMPLETED"
