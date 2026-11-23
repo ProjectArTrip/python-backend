@@ -2,7 +2,7 @@
 
 Revision ID: 0001
 Revises:
-Create Date: 2026-11-23 14:08:20.622388
+Create Date: 2026-11-23 23:08:54.535268
 
 """
 
@@ -446,6 +446,13 @@ def upgrade() -> None:
             ["owner_user_id"], ["users.id"], name=op.f("fk_exhibit_owner_user_id_users")
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_exhibit")),
+        sa.UniqueConstraint(
+            "exhibit_hall_id",
+            "title",
+            "start_date",
+            name=op.f("uq_exhibit_exhibit_hall_id_title_start_date"),
+            postgresql_nulls_not_distinct=True,
+        ),
     )
     op.create_index(
         op.f("ix_exhibit_exhibit_hall_id"), "exhibit", ["exhibit_hall_id"], unique=False

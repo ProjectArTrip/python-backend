@@ -10,6 +10,7 @@ from sqlalchemy import (
     String,
     Table,
     Text,
+    UniqueConstraint,
     func,
 )
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
@@ -64,6 +65,9 @@ exhibit_table = Table(
     ),
     Index(None, "exhibit_hall_id"),
     Index(None, "owner_user_id"),
+    UniqueConstraint(
+        "exhibit_hall_id", "title", "start_date", postgresql_nulls_not_distinct=True
+    ),
 )
 
 exhibit_keyword_table = Table(
