@@ -14,4 +14,5 @@ CMD ["uvicorn", "arttrip.main:app", "--host", "0.0.0.0", "--port", "8000", "--re
 
 FROM develop-stage AS production-stage
 COPY app /app/app
+COPY alembic.ini /app/alembic.ini
 CMD ["uvicorn", "arttrip.main:app", "--host", "0.0.0.0", "--port", "8000"]
