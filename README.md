@@ -11,12 +11,19 @@ Python 3.14, FastAPI, SQLAlchemy 2.0 (imperative mapping), Alembic, PostgreSQL, 
 
 ```bash
 cp .env.example .env
-cp alembic.ini.example alembic.ini
 docker compose up -d
 poetry run alembic upgrade head
 ```
 
 로컬 DB 초기화는 `docker compose down -v`.
+
+staging 은 앱을 띄우기 전에 컨테이너에서 마이그레이션을 먼저 적용한다.
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.staging.yml build
+docker compose -f docker-compose.yml -f docker-compose.staging.yml run --rm app alembic upgrade head
+docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d
+```
 
 ## 검사
 
