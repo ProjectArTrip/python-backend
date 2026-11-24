@@ -236,3 +236,4 @@ alembic.ini
 *.p8
 *.p12
 .codex/
+.serena/

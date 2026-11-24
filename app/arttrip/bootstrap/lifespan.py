@@ -117,7 +117,10 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             s3={"addressing_style": "virtual"},
             connect_timeout=settings.s3.s3_connect_timeout_seconds,
             read_timeout=settings.s3.s3_read_timeout_seconds,
-            retries={"max_attempts": settings.s3.s3_max_attempts, "mode": "standard"},
+            retries={
+                "total_max_attempts": settings.s3.s3_max_attempts,
+                "mode": "standard",
+            },
         ),
     )
     app.state.image_storage = S3ImageStorageAdapter(

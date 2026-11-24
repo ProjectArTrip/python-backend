@@ -104,6 +104,7 @@ def change_profile_image(
         image,
         max_bytes=limits.max_bytes,
         max_pixels=limits.max_pixels,
+        max_side=limits.max_side,
         quality=limits.jpeg_quality,
     )
     result = use_case.change_profile_image(
