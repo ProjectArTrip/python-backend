@@ -62,3 +62,14 @@ class TestPrepareImage:
                 max_side=MAX_SIDE,
                 quality=QUALITY,
             )
+
+
+    def test_truncated_png_is_rejected_as_invalid_image(self) -> None:
+        buffer = BytesIO()
+        Image.new("RGB", (10, 10)).save(buffer, format="PNG")
+        truncated = buffer.getvalue()[:20]
+
+        with pytest.raises(InvalidImageError):
+            prepare_image(
+                truncated, max_pixels=GENEROUS_PIXELS, max_side=MAX_SIDE, quality=QUALITY
+            )

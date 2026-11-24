@@ -10,7 +10,7 @@ OUTPUT_FORMAT: Final = "JPEG"
 OUTPUT_CONTENT_TYPE: Final = "image/jpeg"
 OUTPUT_EXTENSION: Final = "jpg"
 OUTPUT_MODE: Final = "RGB"
-
+WHITE: Final = (255, 255, 255, 255)
 
 class InvalidImageError(Exception):
     pass
@@ -33,12 +33,21 @@ def prepare_image(
             width, height = source.size
             if width * height > max_pixels:
                 raise InvalidImageError("이미지 해상도가 너무 큽니다.")
+            icc_profile = source.info.get("icc_profile")
             source.thumbnail((max_side, max_side))
             upright = ImageOps.exif_transpose(source)
+            if "A" in upright.getbands() or "transparency" in upright.info:
+                rgba = upright.convert("RGBA")
+                upright = Image.alpha_composite(Image.new("RGBA", rgba.size, WHITE), rgba)
             cleaned = upright.convert(OUTPUT_MODE)
             output = BytesIO()
-            cleaned.save(output, format=OUTPUT_FORMAT, quality=quality)
-    except (UnidentifiedImageError, Image.DecompressionBombError, OSError) as error:
+            cleaned.save(
+                output, format=OUTPUT_FORMAT, quality=quality, icc_profile=icc_profile
+            )
+    except (InvalidImageError, MemoryError):
+        raise
+    except Exception as error:
+        # 신뢰할 수 없는 바이트를 디코드하는 경계라 손상 데이터의 예외 종류를 다 셀 수 없다
         raise InvalidImageError("이미지 파일을 읽을 수 없습니다.") from error
     return PreparedImage(
         content=output.getvalue(),
