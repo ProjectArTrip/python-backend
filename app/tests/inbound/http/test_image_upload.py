@@ -7,6 +7,7 @@ from PIL import Image
 GENEROUS_PIXELS = 10_000_000
 QUALITY = 85
 CAMERA_MAKE_TAG = 0x010F
+MAX_SIDE = 2048
 
 
 def jpeg_bytes(size: tuple[int, int], exif: Image.Exif | None = None) -> bytes:
@@ -27,7 +28,9 @@ class TestPrepareImage:
         original = jpeg_bytes((10, 10), exif=exif)
 
         # when
-        prepared = prepare_image(original, max_pixels=GENEROUS_PIXELS, quality=QUALITY)
+        prepared = prepare_image(
+            original, max_pixels=GENEROUS_PIXELS, max_side=MAX_SIDE, quality=QUALITY
+        )
 
         # then
         with Image.open(BytesIO(prepared.content)) as result:
@@ -40,7 +43,12 @@ class TestPrepareImage:
 
         # when, then
         with pytest.raises(InvalidImageError):
-            prepare_image(one_pixel_over, max_pixels=max_pixels, quality=QUALITY)
+            prepare_image(
+                one_pixel_over,
+                max_pixels=max_pixels,
+                max_side=MAX_SIDE,
+                quality=QUALITY,
+            )
 
     def test_이미지가_아닌_파일은_거절한다(self) -> None:
         # given
@@ -48,4 +56,20 @@ class TestPrepareImage:
 
         # when, then
         with pytest.raises(InvalidImageError):
-            prepare_image(not_image, max_pixels=GENEROUS_PIXELS, quality=QUALITY)
+            prepare_image(
+                not_image,
+                max_pixels=GENEROUS_PIXELS,
+                max_side=MAX_SIDE,
+                quality=QUALITY,
+            )
+
+
+    def test_truncated_png_is_rejected_as_invalid_image(self) -> None:
+        buffer = BytesIO()
+        Image.new("RGB", (10, 10)).save(buffer, format="PNG")
+        truncated = buffer.getvalue()[:20]
+
+        with pytest.raises(InvalidImageError):
+            prepare_image(
+                truncated, max_pixels=GENEROUS_PIXELS, max_side=MAX_SIDE, quality=QUALITY
+            )

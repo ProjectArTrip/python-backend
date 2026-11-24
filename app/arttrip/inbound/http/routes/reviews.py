@@ -192,6 +192,7 @@ def _read_images(files: list[UploadFile] | None) -> tuple[UploadedImage, ...]:
             file,
             max_bytes=limits.max_bytes,
             max_pixels=limits.max_pixels,
+            max_side=limits.max_side,
             quality=limits.jpeg_quality,
         )
         for file in uploads

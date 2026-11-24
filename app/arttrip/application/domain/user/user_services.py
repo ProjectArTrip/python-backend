@@ -233,10 +233,10 @@ class ChangeProfileImageService(ChangeProfileImageUseCase):
                     key=key, policy=self._policy, now=datetime.now(UTC)
                 )
         except Exception:
-            _delete_quietly(self._storage, key)
+            delete_quietly(self._storage, key)
             raise
         if previous_key is not None:
-            _delete_quietly(self._storage, previous_key)
+            delete_quietly(self._storage, previous_key)
         return ProfileImage(url=self._storage.public_url(key))
 
 
@@ -255,10 +255,10 @@ class RemoveProfileImageService(RemoveProfileImageUseCase):
                 now=datetime.now(UTC), policy=self._policy
             )
         if previous_key is not None:
-            _delete_quietly(self._storage, previous_key)
+            delete_quietly(self._storage, previous_key)
 
 
-def _delete_quietly(storage: ImageStoragePort, key: str) -> None:
+def delete_quietly(storage: ImageStoragePort, key: str) -> None:
     try:
         storage.delete(key)
     except ImageError:
