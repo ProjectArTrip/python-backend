@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.body_limit import RequestBodyLimitMiddleware
 from starlette.types import Lifespan
 
 from arttrip.application.util.exception import DomainException
@@ -16,6 +17,7 @@ def create_app(
     *,
     docs_enabled: bool = False,
     allowed_origins: list[str] | None = None,
+    max_body_bytes: int,
 ) -> FastAPI:
     app = FastAPI(
         title="Artrip Swagger API",
@@ -32,6 +34,8 @@ def create_app(
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
         allow_headers=["Authorization", "Content-Type"],
     )
+
+    app.add_middleware(RequestBodyLimitMiddleware, max_body_size=max_body_bytes)
 
     app.add_exception_handler(DomainException, handle_domain_exception)
     app.include_router(root_router)

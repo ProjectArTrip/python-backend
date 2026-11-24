@@ -14,5 +14,6 @@ app = create_app(
     lifespan=lifespan,
     docs_enabled=settings.http.docs_enabled,
     allowed_origins=settings.web_auth.allowed_origins,
+    max_body_bytes=settings.http.max_body_bytes,
 )
 wire(app)
