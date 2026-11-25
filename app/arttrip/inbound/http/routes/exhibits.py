@@ -160,6 +160,7 @@ def to_exhibit_summary_response(exhibit: ExhibitSummary) -> ExhibitSummaryRespon
             country_code=exhibit.hall.country_code,
         ),
         is_favorite=exhibit.is_favorite,
+        genres=list(exhibit.genres),
     )
 
 

@@ -268,6 +268,26 @@ class ExhibitAdapter(ExhibitPort):
             )
         return picked
 
+    def list_halls_with_ongoing(
+        self, *, today: date, limit: int
+    ) -> list[tuple[ExhibitHall, int]]:
+        ongoing = build_exhibit_conditions(
+            ExhibitFilter(period_start=today, period_end=today)
+        )
+        ongoing_count = func.count(exhibit_table.c.id).label("ongoing_count")
+        statement = (
+            select(ExhibitHall, ongoing_count)
+            .join(
+                exhibit_table,
+                exhibit_table.c.exhibit_hall_id == exhibit_hall_table.c.id,
+            )
+            .where(*ongoing)
+            .group_by(exhibit_hall_table.c.id)
+            .order_by(ongoing_count.desc(), exhibit_hall_table.c.id.asc())
+            .limit(limit)
+        )
+        return [(hall, count) for hall, count in self._session.execute(statement)]
+
     def _fetch_ordered_by_random_key(
         self,
         conditions: list[ColumnElement[bool]],

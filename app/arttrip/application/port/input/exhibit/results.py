@@ -53,6 +53,7 @@ class ExhibitSummary:
     end_date: date | None
     hall: ExhibitHallSummary
     is_favorite: bool
+    genres: tuple[str, ...]
 
 
 @dataclass(frozen=True)
