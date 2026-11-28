@@ -141,6 +141,7 @@ def list_exhibits(
     )
     return ExhibitListResponse(
         exhibits=[to_exhibit_summary_response(exhibit) for exhibit in page.items],
+        total_count=page.total_count,
         next_cursor=_encode_cursor(page.next_cursor) if page.next_cursor else None,
         has_next=page.has_next,
     )

@@ -36,6 +36,10 @@ class ExhibitPort(ABC):
         pass
 
     @abstractmethod
+    def count(self, *, criteria: ExhibitFilter) -> int:
+        pass
+
+    @abstractmethod
     def pick_random(
         self, *, criteria: ExhibitFilter, today: date, pivot: float, limit: int
     ) -> list[Exhibit]:

@@ -112,6 +112,14 @@ class ExhibitAdapter(ExhibitPort):
             if exhibit.id is not None
         ]
 
+    def count(self, *, criteria: ExhibitFilter) -> int:
+        statement = (
+            select(func.count())
+            .select_from(exhibit_table)
+            .where(*build_exhibit_conditions(criteria))
+        )
+        return self._session.scalar(statement) or 0
+
     def search_page(
         self,
         *,

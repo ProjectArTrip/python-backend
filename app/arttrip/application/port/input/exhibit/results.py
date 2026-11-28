@@ -132,6 +132,7 @@ class ExhibitImportResult:
 class ExhibitPage:
     items: tuple[ExhibitSummary, ...]
     next_cursor: ExhibitListCursor | None
+    total_count: int
 
     @property
     def has_next(self) -> bool:
