@@ -42,6 +42,12 @@ class ExhibitPort(ABC):
         pass
 
     @abstractmethod
+    def list_halls_with_ongoing(
+        self, *, today: date, limit: int
+    ) -> list[tuple[ExhibitHall, int]]:
+        pass
+
+    @abstractmethod
     def search_page(
         self,
         *,

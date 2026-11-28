@@ -17,6 +17,7 @@ from arttrip.application.port.output.exhibit_source_port import (
 
 _logger = logging.getLogger(__name__)
 
+CULTURE_INFO_SOURCE: Final = "CULTURE_INFO"
 EXHIBIT_REALM_CODE: Final = "D000"
 SUCCESS_RESULT_CODE: Final = "00"
 SOURCE_DATE_FORMAT: Final = "%Y%m%d"
@@ -105,6 +106,7 @@ class CultureInfoExhibitSourceAdapter(ExhibitSourcePort):
 def _to_sourced(seq: str, item: Element, detail: Element | None) -> SourcedExhibit:
     area = _text(item, "area")
     return SourcedExhibit(
+        source=CULTURE_INFO_SOURCE,
         external_id=seq,
         title=_text(item, "title"),
         description=_detail_text(detail, "contents1"),

@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 
-from arttrip.inbound.http.dependencies.auth import CurrentUserDep, get_current_user
+from arttrip.inbound.http.dependencies.auth import CurrentUserDep
 from arttrip.inbound.http.dependencies.keyword import (
     ListKeywordsUseCaseDep,
     ListRecommendedKeywordsUseCaseDep,
@@ -14,8 +14,6 @@ router = APIRouter()
 @router.get(
     "",
     response_model=KeywordListResponse,
-    dependencies=[Depends(get_current_user)],
-    responses=error_responses(*AUTHENTICATION_ERRORS),
 )
 def list_keywords(use_case: ListKeywordsUseCaseDep) -> KeywordListResponse:
     keywords = use_case.list_keywords()

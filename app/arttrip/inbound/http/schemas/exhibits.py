@@ -55,6 +55,7 @@ class ExhibitSummaryResponse(ApiModel):
     end_date: date | None
     hall: ExhibitHallSummaryResponse
     is_favorite: bool
+    genres: list[str]
 
 
 class ExhibitListResponse(ApiModel):
