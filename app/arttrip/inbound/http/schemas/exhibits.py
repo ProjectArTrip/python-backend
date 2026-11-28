@@ -60,6 +60,7 @@ class ExhibitSummaryResponse(ApiModel):
 
 class ExhibitListResponse(ApiModel):
     exhibits: list[ExhibitSummaryResponse]
+    total_count: int
     next_cursor: str | None
     has_next: bool
 

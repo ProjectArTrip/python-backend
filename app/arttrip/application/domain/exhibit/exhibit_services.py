@@ -100,7 +100,10 @@ class ListExhibitsService(ListExhibitsUseCase):
                 for exhibit in page_exhibits
             )
             next_cursor = page[-1][1] if len(rows) > query.size else None
-            return ExhibitPage(items=items, next_cursor=next_cursor)
+            total_count = uow.exhibits.count(criteria=query.criteria)
+            return ExhibitPage(
+                items=items, next_cursor=next_cursor, total_count=total_count
+            )
 
 
 class ListRecentExhibitsService(ListRecentExhibitsUseCase):
