@@ -50,6 +50,14 @@ class CreateExhibitCommand:
 class ExhibitImportRow:
     row_number: int
     exhibit: CreateExhibitCommand
+    source_ref: ExhibitSourceRef | None = None
+
+
+@dataclass(frozen=True)
+class ExhibitSourceRef:
+    source: str
+    external_id: str
+    content_hash: str
 
 
 @dataclass(frozen=True)

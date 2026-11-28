@@ -86,7 +86,9 @@ def map_exhibit_table() -> None:
         properties={
             "_id": exhibit_table.c.id,
             "hall": relationship("ExhibitHall", lazy="joined"),
-            "keywords": relationship("Keyword", secondary=exhibit_keyword_table),
+            "keywords": relationship(
+                "Keyword", secondary=exhibit_keyword_table, lazy="selectin"
+            ),
             "owner_id": exhibit_table.c.owner_user_id,
         },
         exclude_properties=["random_key", "view_count", "created_at", "updated_at"],

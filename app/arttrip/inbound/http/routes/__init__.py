@@ -39,7 +39,7 @@ root_router.include_router(
     tags=["notifications"],
 )
 root_router.include_router(favorites.router, prefix="/favorites", tags=["favorites"])
-root_router.include_router(home.router, prefix="/home/exhibits", tags=["home"])
+root_router.include_router(home.router, prefix="/home", tags=["home"])
 root_router.include_router(
     recent_exhibits.router,
     prefix="/users/me/recentExhibits",

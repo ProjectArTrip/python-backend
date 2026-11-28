@@ -8,6 +8,7 @@ from arttrip.application.domain.exhibit.location_services import ensure_known_lo
 from arttrip.application.domain.exhibit.recent_exhibit import (
     get_recent_exhibit_retention_start,
 )
+from arttrip.application.domain.keyword.keyword_type import KeywordType
 from arttrip.application.port.input.exhibit.queries import (
     GetExhibitQuery,
     ListExhibitsQuery,
@@ -196,4 +197,5 @@ def to_exhibit_summary(
             country_code=exhibit.hall.country_code,
         ),
         is_favorite=is_favorite,
+        genres=exhibit.keyword_names(KeywordType.GENRE),
     )

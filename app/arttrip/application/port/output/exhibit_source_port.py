@@ -1,9 +1,12 @@
+import hashlib
+import json
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 
 
 @dataclass(frozen=True)
 class SourcedExhibit:
+    source: str
     external_id: str
     title: str | None
     description: str | None
@@ -18,6 +21,10 @@ class SourcedExhibit:
     phone: str | None
     latitude: str | None
     longitude: str | None
+
+    def content_hash(self) -> str:
+        payload = json.dumps(asdict(self), ensure_ascii=False, sort_keys=True)
+        return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 @dataclass(frozen=True)
